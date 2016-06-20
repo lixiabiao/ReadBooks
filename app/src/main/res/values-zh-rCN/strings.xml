@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">记录</string>
+    <string name="read">读过</string>
+    <string name="reading">在读</string>
+    <string name="want_read">想读</string>
+    <string name="search">搜索</string>
+    <string name="clear_search">清除记录</string>
+    <string name="searchbook_title">搜索图书</string>
+    <string name="books_title">书库</string>
+    <string name="new_book">新书</string>
+    <!-- TODO: Remove or change this placeholder text -->
+</resources>

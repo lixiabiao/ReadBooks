@@ -1,3 +1,12 @@
 <resources>
     <string name="app_name">Reading</string>
+    <string name="read">read</string>
+    <string name="reading">reading</string>
+    <string name="want_read">want read</string>
+    <string name="search">Search</string>
+    <string name="clear_search">Clear Search</string>
+    <string name="new_book">New Book</string>
+    <string name="searchbook_title">SearchBook</string>
+    <string name="books_title">Books</string>
+    <!-- TODO: Remove or change this placeholder text -->
 </resources>
