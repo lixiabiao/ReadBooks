@@ -176,7 +176,7 @@ public class BooksFragement extends Fragment {
             title.setText(book.getTitle());
             Log.d(TAG,"URL = " + book.getImageUrl());
             author.setText(book.getAuthor());
-            String imageUrl = book.getImageUrl();
+            String imageUrl = book.getMediumUrl();
             Picasso.with(getActivity()).load(imageUrl).into(image);
             updataBookStatus(book);
         }

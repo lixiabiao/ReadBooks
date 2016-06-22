@@ -43,8 +43,8 @@ public class SearchBooksFragement extends Fragment {
 
     private RecyclerView booksRecyclerView;
     private BookLab mBookLab;
-    private String mQuery;
     private Call mCall;
+    private BooksAdapter mAdapter;
 
     public static Fragment newInstance() {
         return new SearchBooksFragement();
@@ -56,12 +56,6 @@ public class SearchBooksFragement extends Fragment {
         booksRecyclerView = (RecyclerView) view.findViewById(R.id.books_recycler_view);
         setHasOptionsMenu(true);
         getActivity().setTitle(R.string.searchbook_title);
-
-//        BooksAdapter adapter = new BooksAdapter();
-//        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getActivity());
-//        booksRecyclerView.setLayoutManager(layoutManager);
-//        booksRecyclerView.setAdapter(adapter);
-        updateItems();
         return view;
     }
 
@@ -80,14 +74,21 @@ public class SearchBooksFragement extends Fragment {
 
         MenuItem searchItem = menu.findItem(R.id.menu_item_search);
         final SearchView searchView = (SearchView) searchItem.getActionView();
+        searchItem.expandActionView();
+        searchView.requestFocus();
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String s) {
                 Log.d(TAG, "QueryTextSubmit: " + s);
-                QueryPreferences.setStoredQuery(getActivity(), s);
-                updateItems();
+                if (mAdapter != null) {
+                    BookLab.get(getActivity()).getSearchBooks().clear();
+                    mAdapter.notifyDataSetChanged();
+                }
+                searchBook(s);
+                searchView.clearFocus();
                 return true;
             }
+
             @Override
             public boolean onQueryTextChange(String s) {
                 return false;
@@ -95,32 +96,12 @@ public class SearchBooksFragement extends Fragment {
         });
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.menu_item_clear:
-                QueryPreferences.setStoredQuery(getActivity(), null);
-                updateItems();
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-    }
-
-    private void updateItems() {
-        String query = QueryPreferences.getStoredQuery(getActivity());
-        searchBook(query);
-    }
-
-
     private void searchBook(String key) {
         // https://api.douban.com/v2/book/search
         // https://api.douban.com/v2/book/search?q=swift&fields=title,images
-        mQuery = key;
-
         OkHttpClient client = new OkHttpClient();
         HttpUrl.Builder builder = HttpUrl.parse("https://api.douban.com/v2/book/search").newBuilder();
-        builder.addQueryParameter("q",mQuery);
+        builder.addQueryParameter("q", key);
         builder.addQueryParameter("fields", "title,images,author,summary,pages,price,isbn13");
         String url = builder.build().toString();
         Log.d(TAG, url);
@@ -143,10 +124,14 @@ public class SearchBooksFragement extends Fragment {
                     @Override
                     public void run() {
                         List<Book> books = BookLab.get(getActivity()).getSearchBooks();
-                        BooksAdapter adapter = new BooksAdapter(books);
-                        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getActivity());
-                        booksRecyclerView.setLayoutManager(layoutManager);
-                        booksRecyclerView.setAdapter(adapter);
+                        if (mAdapter == null) {
+                            mAdapter = new BooksAdapter(books);
+                            RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getActivity());
+                            booksRecyclerView.setLayoutManager(layoutManager);
+                            booksRecyclerView.setAdapter(mAdapter);
+                        } else {
+                            mAdapter.notifyDataSetChanged();
+                        }
                     }
                 });
             }
@@ -208,7 +193,7 @@ public class SearchBooksFragement extends Fragment {
         }
 
         public void bindItem(Book book) {
-            String imageUrl = book.getImages().get("medium");
+            String imageUrl = book.getMediumUrl();
             Picasso.with(getActivity()).load(imageUrl).into(image);
             title.setText(book.getTitle());
 

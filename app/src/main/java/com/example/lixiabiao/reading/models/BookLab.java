@@ -79,6 +79,8 @@ public class BookLab {
         if (findBooks.size() > 0) {
             updateBook(b);
         } else {
+            Log.d(TAG,b.getMediumUrl());
+            localBooks.add(b);
             ContentValues values = BookLab.getContentValues(b);
             mDatabase.insert(BookTable.NAME, null, values);
         }
@@ -91,6 +93,7 @@ public class BookLab {
 
     public List<Book>  getLocalBooks() {
         if (localBooks != null) {
+            Log.d(TAG,localBooks.size() + "");
             return localBooks;
         }
         localBooks = new ArrayList<>();
